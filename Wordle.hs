@@ -1,4 +1,7 @@
-import Data.List (sort)
+import Data.List (nub, sort, sortBy)
+import Data.Ord (comparing)
+
+import qualified Data.HashMap.Strict as HMS
 
 {- True if the word is compatible with the wildcard regex. -}
 matchesExact :: String -> String -> Bool
@@ -53,10 +56,36 @@ matchingWords :: String -> String -> String -> [String] -> [String]
 matchingWords exact exists never =
   filter (matches exact exists never)
 
+{-
+Orders the words based on the heuristic that scores words based on the number of
+words that each letter occurs in.
+-}
+rankWords :: String -> [String] -> [String]
+rankWords exact ws =
+  reverse $
+  map fst $
+  sortBy (comparing snd) $
+  zip ws ranks
+  where
+    ranks = map rank ws'
+    ws' = map (nub . filterWild exact) ws
+
+    hist = foldr tallyWord HMS.empty ws'
+
+    tallyWord w h = foldr tallyChar h w
+    tallyChar c h =
+      let cnt = HMS.findWithDefault 0 c h
+      in HMS.insert c (cnt + 1) h
+
+    rank = sum . map (hist HMS.!)
+
 main :: IO ()
 main = do
   dict <- lines <$> readFile "dict.txt"
-  let exact = ".oi.t"
-  let exists = ""
-  let never = "dreamvuchlfyjs"
-  mapM_ print $ matchingWords exact exists never dict
+  let exact = "....n"
+  let exists = "ie"
+  let never = "abtsr"
+  mapM_ print $
+    take 5 $
+    rankWords exact $
+    matchingWords exact exists never dict
