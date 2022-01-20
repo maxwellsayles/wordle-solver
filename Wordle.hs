@@ -35,9 +35,7 @@ matchesExists exact exists word =
       | x == y = isSublist xs ys
       | otherwise = isSublist (x:xs) ys
 
-{-
-True if never characters do not occur among the wild characters.
--}
+{- True if never characters do not occur among the wild characters. -}
 matchesNever :: String -> String -> String -> Bool
 matchesNever exact never word =
   all pred never
