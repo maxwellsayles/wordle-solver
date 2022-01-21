@@ -60,10 +60,9 @@ matchingWords exact exists never =
 Orders the words based on the heuristic that scores words based on the number of
 words that each letter occurs in.
 -}
-rankWords :: String -> [String] -> [String]
+rankWords :: String -> [String] -> [(String, Int)]
 rankWords exact ws =
   reverse $
-  map fst $
   sortBy (comparing snd) $
   zip ws ranks
   where
@@ -82,9 +81,9 @@ rankWords exact ws =
 main :: IO ()
 main = do
   dict <- lines <$> readFile "dict.txt"
-  let exact = "....n"
-  let exists = "ie"
-  let never = "abtsr"
+  let exact = ".la.a"
+  let exists = ""
+  let never = "ureistycokgndpz"
   mapM_ print $
     take 5 $
     rankWords exact $
